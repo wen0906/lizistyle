@@ -1,22 +1,22 @@
 // API服务配置
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://your-backend-api.onrender.com/api' 
+const API_BASE_URL = process.env.NODE_ENV === 'production'
+  ? 'https://lizistyle-production.up.railway.app/api'
   : 'http://localhost:5000/api';
 
 // 通用请求方法
 async function request(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
-  
+
   // 获取token
   const token = localStorage.getItem('token');
-  
+
   const defaultOptions = {
     headers: {
       'Content-Type': 'application/json',
       ...(token && { Authorization: `Bearer ${token}` }),
     },
   };
-  
+
   const mergedOptions = {
     ...defaultOptions,
     ...options,
@@ -28,11 +28,11 @@ async function request(endpoint, options = {}) {
 
   try {
     const response = await fetch(url, mergedOptions);
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     return await response.json();
   } catch (error) {
     console.error('API请求失败:', error);
@@ -61,7 +61,7 @@ export const api = {
       method: 'DELETE',
     }),
   },
-  
+
   // 分类相关
   categories: {
     getAll: () => request('/categories'),
@@ -78,7 +78,7 @@ export const api = {
       method: 'DELETE',
     }),
   },
-  
+
   // 标签相关
   tags: {
     getAll: () => request('/tags'),
@@ -95,7 +95,7 @@ export const api = {
       method: 'DELETE',
     }),
   },
-  
+
   // 健康检查
   health: () => request('/health'),
 };

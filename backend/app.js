@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 5000;
 
 // 配置CORS
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -43,7 +43,7 @@ app.use((err, req, res, next) => {
 // 启动服务器
 app.listen(PORT, async () => {
   console.log(`服务器运行在 http://localhost:${PORT}`);
-  
+
   // 测试数据库连接
   if (sequelize.testConnection) {
     await sequelize.testConnection();
