@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const routes = require('./routes');
+const sequelize = require('./config/database');
 require('dotenv').config();
 
 const app = express();
@@ -40,8 +41,13 @@ app.use((err, req, res, next) => {
 });
 
 // 启动服务器
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`服务器运行在 http://localhost:${PORT}`);
+  
+  // 测试数据库连接
+  if (sequelize.testConnection) {
+    await sequelize.testConnection();
+  }
 });
 
 module.exports = app;
