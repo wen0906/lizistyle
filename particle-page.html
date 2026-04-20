@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>粒子世界 - Particle Universe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: #ffffff;
+        }
+
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #00d9ff, #00ff88, #ff00ff, #ff006e);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 8s ease infinite;
+            text-shadow: 0 0 30px rgba(0, 217, 255, 0.5);
+            letter-spacing: 0.1em;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 3rem;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .cta-button {
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            background: transparent;
+            border: 2px solid rgba(0, 217, 255, 0.5);
+            color: #00d9ff;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 217, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .cta-button:hover {
+            background: rgba(0, 217, 255, 0.1);
+            border-color: #00d9ff;
+            box-shadow: 0 0 30px rgba(0, 217, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: left;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 217, 255, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(0, 217, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #00d9ff;
+            position: relative;
+        }
+
+        .card p {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+            position: relative;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 3;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 217, 255, 0.2);
+            border-color: #00d9ff;
+            transform: scale(1.1);
+        }
+
+        .control-btn.active {
+            background: rgba(0, 217, 255, 0.3);
+            border-color: #00d9ff;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particle-canvas"></canvas>
+    
+    <div class="content">
+        <h1>PARTICLE UNIVERSE</h1>
+        <p class="subtitle">
+            探索粒子世界的无限可能，每一个粒子都是宇宙中的一个故事，
+            每一次连接都是命运的交汇。
+        </p>
+        <button class="cta-button" onclick="toggleInteraction()">
+            开启互动模式
+        </button>
+
+        <div class="info-cards">
+            <div class="card">
+                <h3>✨ 动态粒子</h3>
+                <p>数百个粒子在屏幕上自由漂浮，形成美丽的动态图案，每个粒子都有独特的运动轨迹。</p>
+            </div>
+            <div class="card">
+                <h3>🔗 智能连接</h3>
+                <p>当粒子彼此靠近时，它们会自动建立连接，创造出令人惊叹的神经网络效果。</p>
+            </div>
+            <div class="card">
+                <h3>🎨 交互体验</h3>
+                <p>移动鼠标与粒子互动，观察它们如何响应你的动作，创造独特的视觉效果。</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn" onclick="changeColorScheme()" title="切换配色">🎨</button>
+        <button class="control-btn" onclick="toggleConnections()" title="切换连线">🔗</button>
+        <button class="control-btn" onclick="adjustSpeed()" title="调整速度">⚡</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let particles = [];
+        let mouse = { x: null, y: null };
+        let interactionMode = false;
+        let showConnections = true;
+        let speedMultiplier = 1;
+        
+        const colorSchemes = [
+            { primary: '#00d9ff', secondary: '#00ff88', accent: '#ff00ff' },
+            { primary: '#ff6b6b', secondary: '#feca57', accent: '#5f27cd' },
+            { primary: '#54a0ff', secondary: '#48dbfb', accent: '#ff9ff3' },
+            { primary: '#1dd1a1', secondary: '#10ac84', accent: '#222f3e' }
+        ];
+        
+        let currentColorScheme = 0;
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            initParticles();
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 2 * speedMultiplier;
+                this.vy = (Math.random() - 0.5) * 2 * speedMultiplier;
+                this.radius = Math.random() * 3 + 1;
+                this.color = this.getRandomColor();
+                this.originalRadius = this.radius;
+            }
+
+            getRandomColor() {
+                const scheme = colorSchemes[currentColorScheme];
+                const colors = [scheme.primary, scheme.secondary, scheme.accent];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+
+                if (mouse.x && mouse.y) {
+                    const dx = mouse.x - this.x;
+                    const dy = mouse.y - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 150) {
+                        const angle = Math.atan2(dy, dx);
+                        const force = (150 - distance) / 150;
+                        const pushX = Math.cos(angle) * force * 3;
+                        const pushY = Math.sin(angle) * force * 3;
+                        
+                        if (interactionMode) {
+                            this.vx -= pushX;
+                            this.vy -= pushY;
+                        } else {
+                            this.vx += pushX * 0.05;
+                            this.vy += pushY * 0.05;
+                        }
+                    }
+                }
+
+                this.x = Math.max(0, Math.min(width, this.x));
+                this.y = Math.max(0, Math.min(height, this.y));
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = this.color;
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            const particleCount = Math.min(200, Math.floor((width * height) / 8000));
+            
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function connectParticles() {
+            if (!showConnections) return;
+            
+            const maxDistance = 120;
+            
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < maxDistance) {
+                        const opacity = 1 - (distance / maxDistance);
+                        const scheme = colorSchemes[currentColorScheme];
+                        
+                        ctx.beginPath();
+                        ctx.strokeStyle = scheme.primary;
+                        ctx.globalAlpha = opacity * 0.5;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                        ctx.globalAlpha = 1;
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(12, 12, 12, 0.1)';
+            ctx.fillRect(0, 0, width, height);
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            
+            connectParticles();
+            
+            requestAnimationFrame(animate);
+        }
+
+        function toggleInteraction() {
+            interactionMode = !interactionMode;
+            const btn = document.querySelector('.cta-button');
+            btn.textContent = interactionMode ? '关闭互动模式' : '开启互动模式';
+            btn.style.background = interactionMode ? 'rgba(0, 217, 255, 0.2)' : 'transparent';
+        }
+
+        function changeColorScheme() {
+            currentColorScheme = (currentColorScheme + 1) % colorSchemes.length;
+            particles.forEach(particle => {
+                particle.color = particle.getRandomColor();
+            });
+        }
+
+        function toggleConnections() {
+            showConnections = !showConnections;
+            const btn = document.querySelectorAll('.control-btn')[1];
+            btn.classList.toggle('active', showConnections);
+        }
+
+        function adjustSpeed() {
+            const speeds = [0.5, 1, 1.5, 2];
+            const currentIndex = speeds.indexOf(speedMultiplier);
+            speedMultiplier = speeds[(currentIndex + 1) % speeds.length];
+            
+            particles.forEach(particle => {
+                particle.vx = (Math.random() - 0.5) * 2 * speedMultiplier;
+                particle.vy = (Math.random() - 0.5) * 2 * speedMultiplier;
+            });
+        }
+
+        window.addEventListener('resize', resize);
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        window.addEventListener('mouseleave', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        resize();
+        animate();
+    </script>
+</body>
+</html>
