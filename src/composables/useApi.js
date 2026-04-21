@@ -1,0 +1,100 @@
+import { ref, computed } from 'vue'
+
+const API_BASE_URL = import.meta.env.PROD
+  ? 'https://lizistyle-production.up.railway.app/api'
+  : 'http://localhost:5000/api'
+
+export function useApi() {
+  const loading = ref(false)
+  const error = ref(null)
+
+  async function request(endpoint, options = {}) {
+    const url = `${API_BASE_URL}${endpoint}`
+    const token = localStorage.getItem('token')
+
+    const defaultOptions = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    }
+
+    const mergedOptions = {
+      ...defaultOptions,
+      ...options,
+      headers: {
+        ...defaultOptions.headers,
+        ...options.headers,
+      },
+    }
+
+    loading.value = true
+    error.value = null
+
+    try {
+      const response = await fetch(url, mergedOptions)
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      return await response.json()
+    } catch (err) {
+      error.value = err.message
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return {
+    loading,
+    error,
+    request,
+    articles: {
+      getAll: () => request('/articles'),
+      getById: (id) => request(`/articles/${id}`),
+      getByCategory: (categoryId) => request(`/articles/category/${categoryId}`),
+      getByTag: (tagId) => request(`/articles/tag/${tagId}`),
+      create: (article) => request('/articles', {
+        method: 'POST',
+        body: JSON.stringify(article),
+      }),
+      update: (id, article) => request(`/articles/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(article),
+      }),
+      delete: (id) => request(`/articles/${id}`, {
+        method: 'DELETE',
+      }),
+    },
+    categories: {
+      getAll: () => request('/categories'),
+      getById: (id) => request(`/categories/${id}`),
+      create: (category) => request('/categories', {
+        method: 'POST',
+        body: JSON.stringify(category),
+      }),
+      update: (id, category) => request(`/categories/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(category),
+      }),
+      delete: (id) => request(`/categories/${id}`, {
+        method: 'DELETE',
+      }),
+    },
+    tags: {
+      getAll: () => request('/tags'),
+      getById: (id) => request(`/tags/${id}`),
+      create: (tag) => request('/tags', {
+        method: 'POST',
+        body: JSON.stringify(tag),
+      }),
+      update: (id, tag) => request(`/tags/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(tag),
+      }),
+      delete: (id) => request(`/tags/${id}`, {
+        method: 'DELETE',
+      }),
+    },
+  }
+}

@@ -19,7 +19,7 @@
           </svg>
         </div>
         <span class="user-name">{{ user?.name || '管理员' }}</span>
-        <button @click="handleLogout" class="logout-btn">
+        <button @click="logout" class="logout-btn">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             <polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -104,17 +104,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useAuth } from '../../composables/useAuth'
 
-const router = useRouter()
-const user = ref(JSON.parse(localStorage.getItem('user')))
-
-const handleLogout = () => {
-  localStorage.removeItem('token')
-  localStorage.removeItem('user')
-  router.push('/admin/login')
-}
+const { user, logout } = useAuth()
 </script>
 
 <style scoped>
