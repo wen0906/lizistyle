@@ -59,33 +59,35 @@ const routes = [
   },
   {
     path: '/admin',
-    name: 'Dashboard',
-    component: () => import('../views/admin/Dashboard.vue'),
-    beforeEnter: requireAuth
-  },
-  {
-    path: '/admin/articles',
-    name: 'AdminArticles',
-    component: () => import('../views/admin/Articles.vue'),
-    beforeEnter: requireAuth
-  },
-  {
-    path: '/admin/categories',
-    name: 'AdminCategories',
-    component: () => import('../views/admin/Categories.vue'),
-    beforeEnter: requireAuth
-  },
-  {
-    path: '/admin/tags',
-    name: 'AdminTags',
-    component: () => import('../views/admin/Tags.vue'),
-    beforeEnter: requireAuth
-  },
-  {
-    path: '/admin/users',
-    name: 'Users',
-    component: () => import('../views/admin/Users.vue'),
-    beforeEnter: requireAuth
+    component: () => import('../views/admin/AdminLayout.vue'),
+    beforeEnter: requireAuth,
+    children: [
+      {
+        path: '',
+        name: 'Dashboard',
+        component: () => import('../views/admin/Dashboard.vue')
+      },
+      {
+        path: 'articles',
+        name: 'AdminArticles',
+        component: () => import('../views/admin/Articles.vue')
+      },
+      {
+        path: 'categories',
+        name: 'AdminCategories',
+        component: () => import('../views/admin/Categories.vue')
+      },
+      {
+        path: 'tags',
+        name: 'AdminTags',
+        component: () => import('../views/admin/Tags.vue')
+      },
+      {
+        path: 'users',
+        name: 'Users',
+        component: () => import('../views/admin/Users.vue')
+      }
+    ]
   }
 ]
 

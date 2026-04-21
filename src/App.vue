@@ -1,6 +1,6 @@
 <template>
-  <div class="app">
-    <header class="header">
+  <div class="app" :class="{ 'admin-layout': isAdminPage }">
+    <header class="header" v-if="!isAdminPage">
       <div class="container">
         <router-link to="/" class="logo">个人博客</router-link>
         <nav class="nav">
@@ -13,13 +13,13 @@
       </div>
     </header>
     
-    <main class="main">
-      <div class="container">
+    <main class="main" :class="{ 'admin-main': isAdminPage }">
+      <div class="container" :class="{ 'admin-container': isAdminPage }">
         <router-view />
       </div>
     </main>
     
-    <footer class="footer">
+    <footer class="footer" v-if="!isAdminPage">
       <div class="container">
         <p>&copy; {{ new Date().getFullYear() }} 个人博客. 保留所有权利.</p>
       </div>
@@ -28,7 +28,14 @@
 </template>
 
 <script setup>
-// App.vue
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+
+const isAdminPage = computed(() => {
+  return route.path.startsWith('/admin')
+})
 </script>
 
 <style>
@@ -200,6 +207,22 @@ body {
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid #eee;
+}
+
+/* 管理后台布局 */
+.admin-layout {
+  background-color: #f0f2f5;
+}
+
+.admin-main {
+  padding: 0;
+  min-height: 100vh;
+}
+
+.admin-container {
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
 }
 
 /* 响应式设计 */

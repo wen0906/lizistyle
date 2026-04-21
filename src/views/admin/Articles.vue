@@ -300,9 +300,7 @@ const formatDate = (date) => {
 
 <style scoped>
 .admin-articles {
-  padding: 2rem;
-  background-color: #f0f2f5;
-  min-height: 100vh;
+  width: 100%;
 }
 
 .page-header {

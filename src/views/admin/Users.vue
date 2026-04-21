@@ -163,9 +163,7 @@ const formatDate = (date) => {
 
 <style scoped>
 .admin-users {
-  padding: 2rem;
-  background-color: #f5f5f5;
-  min-height: 100vh;
+  width: 100%;
 }
 
 .admin-header {
