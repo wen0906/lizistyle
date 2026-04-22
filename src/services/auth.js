@@ -1,6 +1,5 @@
-// 认证服务配置
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://your-backend-api.onrender.com/api' 
+const API_BASE_URL = import.meta.env.PROD
+  ? 'https://lizistyle-production.up.railway.app/api'
   : 'http://localhost:5000/api';
 
 // 基础请求函数
